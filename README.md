@@ -163,11 +163,21 @@ Use the gcloud command to ssh into the Alluxio master node:
      gcloud  compute ssh \
         --zone "us-west1-a" "my-alluxio-cluster-m"
 
+Become the alluxio user to run some smoke tests:
+
+     sudo su - alluxio
+
+     runTests
+
+![Alt text](/images/Alluxio_runTests.png?raw=true "Alluxio runTests results")
+
+When completed, exit as the alluxio user.
+
+     exit
+
 Become the test user to run user based alluxio commands:
 
-     sudo su -
-
-     su - user1
+     sudo su - user1
 
 Use the alluxio command to view the status of the cluster:
 
