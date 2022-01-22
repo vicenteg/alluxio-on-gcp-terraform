@@ -9,7 +9,7 @@ Use the git command to clone this repo:
 
      $ git clone https://github.com/gregpalmr/alluxio-on-gcp-terraform
 
-Or using the the github.com web page (green "Code" button) to download the repo zip file and unzip it into a directory.
+Or use the the github.com web page (the green "Code" button) to download the repo zip file and unzip it into a directory.
 
 Change your working directory to the terraform sub-directory:
 
@@ -61,13 +61,13 @@ When the cluster is up and running, you will see a message indicating that the c
 
      Outputs:
 
-     alluxio_cluster_master_hostname = "mycluster-alluxio-cluster-m"
+     alluxio_cluster_master_hostname = "my-cluster-alluxio-cluster-m"
      alluxio_cluster_master_public_ip = "104.196.61.72"
      alluxio_cluster_master_web_ui = "http://104.196.61.72:19999"
 
 ### Step 5. Access the Alluxio Web UI
 
-The default user id and password for the Alluxio Web UI are:
+Point your web browser to the "alluxio_cluster_master_web_ui" URL shown above. The default user id and password for the Alluxio Web UI are:
 
      User ID: admin
      Password: changeme123
