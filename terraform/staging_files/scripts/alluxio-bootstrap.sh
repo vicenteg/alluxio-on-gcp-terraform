@@ -156,6 +156,7 @@ Restart=no
 WantedBy=multi-user.target
 EOF
     systemctl enable alluxio-master
+
     # Service for AlluxioJobMaster JVM
     cat >"/etc/systemd/system/alluxio-job-master.service" <<- EOF
 [Unit]
@@ -171,6 +172,7 @@ Restart=no
 WantedBy=multi-user.target
 EOF
     systemctl enable alluxio-job-master
+
     # Service for HubManager JVM
     cat >"/etc/systemd/system/hub-manager.service" <<- EOF
 [Unit]
@@ -185,7 +187,7 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl enable hub-manager
+    #systemctl enable hub-manager
   else
     # The worker role runs 2 daemons: AlluxioWorker and AlluxioJobWorker
     # Service for AlluxioWorker JVM
@@ -219,6 +221,23 @@ WantedBy=multi-user.target
 EOF
     systemctl enable alluxio-job-worker
   fi
+
+  # Service for AlluxioProxy JVM (on both masters and worers)
+  cat >"/etc/systemd/system/alluxio-proxy.service" <<- EOF
+[Unit]
+Description=Alluxio Proxy
+After=default.target
+[Service]
+Type=simple
+User=alluxio
+WorkingDirectory=${ALLUXIO_HOME}
+ExecStart=${ALLUXIO_HOME}/bin/launch-process proxy -c
+Restart=no
+[Install]
+WantedBy=multi-user.target
+EOF
+  systemctl enable alluxio-proxy
+
     # Launch hub agent on all nodes
     # Service for HubAgent JVM
     cat >"/etc/systemd/system/hub-agent.service" <<- EOF
@@ -234,7 +253,7 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl enable hub-agent
+    #systemctl enable hub-agent
 }
 
 # Configure SSD if necessary and relevant alluxio-site.properties
@@ -333,6 +352,10 @@ bootstrap_alluxio() {
 
   # add alluxio user
   id -u alluxio &>/dev/null || sudo useradd alluxio
+  # add test users
+  id -u user1 &>/dev/null || sudo useradd --no-create-home --home-dir /tmp user1
+  id -u user2 &>/dev/null || sudo useradd --no-create-home --home-dir /tmp user2
+
   # dataproc by default will install alluxio as user kafka
   # change the user and group to alluxio
   sudo chown -R alluxio:alluxio "${ALLUXIO_HOME}"
@@ -348,10 +371,14 @@ bootstrap_alluxio() {
     echo "${ALLUXIO_LICENSE_BASE64}" | base64 -d > ${ALLUXIO_HOME}/license.json
   fi
 
-  # Create "alluxio_ufs" directory in Google Cloud Storage bucket
-  touch /tmp/tmp_file.txt
-  gsutil cp /tmp/tmp_file.txt "gs://${gs_ufs_bucket}/alluxio_ufs/user/alluxio/"
-  rm /tmp/tmp_file.txt
+  # Create "alluxio_ufs" directory and some test user dirs in Google Cloud Storage bucket
+  touch /tmp/ignore.tmp
+  gsutil cp /tmp/ignore.tmp "gs://${gs_ufs_bucket}/alluxio_ufs"
+  #gsutil cp /tmp/ignore.tmp "gs://${gs_ufs_bucket}/alluxio_ufs/user/alluxio/"
+  #gsutil cp /tmp/ignore.tmp "gs://${gs_ufs_bucket}/alluxio_ufs/user/user1/"
+  #gsutil cp /tmp/ignore.tmp "gs://${gs_ufs_bucket}/alluxio_ufs/user/user2/"
+  rm /tmp/ignore.tmp
+
 }
 
 configure_alluxio() {
@@ -377,7 +404,8 @@ configure_alluxio() {
 start_alluxio() {
   if [[ "${ROLE}" == "Master" ]]; then
     doas alluxio "${ALLUXIO_HOME}/bin/alluxio formatJournal"
-    systemctl restart alluxio-master alluxio-job-master hub-manager hub-agent
+    systemctl restart alluxio-master alluxio-job-master alluxio-proxy
+    #systemctl restart hub-manager hub-agent
 
     #local -r sync_list=$(/usr/share/google/get_metadata_value attributes/alluxio_sync_list || true)
     #local path_delimiter=";"
@@ -387,24 +415,122 @@ start_alluxio() {
     #    doas alluxio "${ALLUXIO_HOME}/bin/alluxio fs startSync ${path}"
     #  done
     #fi
+
   else
     if [[ $(get_alluxio_property alluxio.worker.tieredstore.level0.alias) == "MEM" ]]; then
       ${ALLUXIO_HOME}/bin/alluxio-mount.sh SudoMount local
     fi
     doas alluxio "${ALLUXIO_HOME}/bin/alluxio formatWorker"
-    systemctl restart alluxio-worker alluxio-job-worker hub-agent
+    systemctl restart alluxio-worker alluxio-job-worker alluxio-proxy
+    #systemctl restart hub-agent
   fi
+}
+
+# chmod on a alluxio directory - Usage: alluxio_chmod 777 /user
+alluxio_chmod() {
+
+  changed_indicator_file=/tmp/alluxio_dirs_perms_changed
+  for i in {1..10}; 
+  do 
+    doas alluxio "alluxio fs ls $2"
+
+    if [ "$?" == 0 ]; then
+      doas alluxio "alluxio fs chmod $1 $2"
+      if [ "$?" == 0 ]; then
+        touch $changed_indicator_file
+        echo " Permissions successfully changed to $1 on Alluxio dir: $2"
+      fi
+      break;
+    fi
+    # wait for Alluxio to see GCS understore
+    sleep 10
+  done
+
+  if [ -f $changed_indicator_file ]; then
+    echo " Error: Permissions NOT successfully changed to $1 on Alluxio dir: $2"
+  fi
+  rm $changed_indicator_file
+}
+
+# chown on a alluxio directory - Usage: alluxio_chown user1 /user/user1
+alluxio_chown() {
+
+  changed_indicator_file=/tmp/alluxio_dirs_owner_changed
+  for i in {1..10}; 
+  do 
+    doas alluxio "alluxio fs ls $2"
+
+    if [ "$?" == 0 ]; then
+      doas alluxio "alluxio fs chown -R $1 $2"
+      if [ "$?" == 0 ]; then
+        touch $changed_indicator_file
+        echo " Owner successfully changed to $1 on Alluxio dir: $2"
+      fi
+      break;
+    fi
+    # wait for Alluxio to see GCS understore
+    sleep 10
+  done
+
+  if [ -f $changed_indicator_file ]; then
+    echo " Error: Owner NOT successfully changed to $1 on Alluxio dir: $2"
+  fi
+  rm $changed_indicator_file
+}
+
+# Make an alluxio directory - Usage: make_alluxio_dir /user/user1
+alluxio_create_dir() {
+
+  changed_indicator_file=/tmp/alluxio_dirs_created
+  for i in {1..10}; 
+  do 
+    doas alluxio "alluxio fs ls /"
+
+    if [ "$?" == 0 ]; then
+      doas alluxio "alluxio fs mkdir $1"
+      if [ "$?" == 0 ]; then
+        touch $changed_indicator_file
+        echo " Successfully created $1 dir on Alluxio"
+      fi
+      break;
+    fi
+    # wait for Alluxio to see GCS understore
+    sleep 10
+  done
+
+  if [ -f $changed_indicator_file ]; then
+    echo " Error: unsuccessful in creating $1 dir on Alluxio"
+  fi
+  rm $changed_indicator_file
 }
 
 #################
 # Main function #
 #################
 main() {
+  # Stop and disable presto service (not needed for this implementation)
+  #systemctl stop presto 
+  #systemctl disable presto 
+
   echo "Alluxio version: ${ALLUXIO_VERSION}"
   local -r gs_ufs_bucket=$(/usr/share/google/get_metadata_value attributes/alluxio_gs_ufs_bucket || true)
+
   bootstrap_alluxio
   configure_alluxio
   start_alluxio
+
+  if [[ "${ROLE}" == "Master" ]]; then
+    doas alluxio "alluxio fs copyFromLocal /etc/motd /"
+    alluxio_create_dir /tmp
+    alluxio_chmod 777 /tmp
+    alluxio_create_dir /user
+    alluxio_chmod 777 /user
+    alluxio_create_dir /user/user1
+    alluxio_chown user1 /user/user1
+    alluxio_create_dir /user/user2
+    alluxio_chown user2 /user/user2
+    doas alluxio "alluxio fs rm /motd"
+  fi
 }
 
 main "$@"
