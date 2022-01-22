@@ -191,7 +191,11 @@ Use the alluxio command to test creating a directory and a new file in the GCS u
 
      alluxio fs copyFromLocal /etc/motd /user/user1/test_file.txt
 
+### Step 8. Destroy the cluster
 
+Use the Terraform CLI command to destroy the cluster and release the resources.
+
+     terraform destroy
 
 ---
 
