@@ -1,6 +1,10 @@
 # alluxio-on-gcp-terraform
 Run Alluxio Enterprise Trial Edition on Google Cloud Platform using terraform templates
 
+# Introduction
+
+![Alt text](/images/.Meet_Alluxio_Overviewpng?raw=true "Meet Alluxio")
+
 # USAGE
 
 ### Step 1. Clone this repo
@@ -31,12 +35,12 @@ The terraform templates create resources in your Google Cloud Platform project. 
        default     = "my-gcp-project"
      }
 
-The terraform templates create resources in the Google Cloud Platform and some of those resources must contain unique names. If you would like to create a unique name prefix you can modify the variables.tf file and change "my-cluster" to something unique in your GCP project.
+The terraform templates create resources in the Google Cloud Platform and some of those resources must contain unique names. If you would like to create a unique name prefix you can modify the variables.tf file and change "my" to something unique in your GCP project.
 
      variable "custom_name" {
-       description = "Name to prefix resources with."
+       description = "Name to prefix resources with. Example: 'johns' will show up as 'johns-alluxio-cluster'"
        type        = string
-       default     = "my-cluster"
+       default     = "my"
      }
 
 The default region is "us-east1". If you would like to change the region or zone, modify the variables.tf file and change "us-east1" to your desired region.
@@ -133,7 +137,7 @@ When the cluster is up and running, you will see a message indicating that the c
 
      Outputs:
 
-     alluxio_cluster_master_hostname = "my-cluster-alluxio-cluster-m"
+     alluxio_cluster_master_hostname = "my-alluxio-cluster-m"
      alluxio_cluster_master_public_ip = "104.196.61.72"
      alluxio_cluster_master_web_ui = "http://104.196.61.72:19999"
 
@@ -157,7 +161,7 @@ Once logged in, you will see the Alluxio cluster summary page.
 Use the gcloud command to ssh into the Alluxio master node:
 
      gcloud  compute ssh \
-        --zone "us-west1-a" "my-cluster-alluxio-cluster-m"
+        --zone "us-west1-a" "my-alluxio-cluster-m"
 
 Become the test user to run user based alluxio commands:
 
