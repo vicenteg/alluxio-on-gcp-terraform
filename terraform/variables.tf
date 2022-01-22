@@ -28,9 +28,9 @@ variable "use_default_name" {
 }
 
 variable "custom_name" {
-  description = "Name to prefix resources with."
+  description = "Name to prefix resources with. Example: 'johns' will show up as 'johns-alluxio-cluster'"
   type        = string
-  default     = "my-cluster"
+  default     = "my"
 }
 
 variable "compute_region" {
@@ -49,5 +49,11 @@ variable "alluxio_tarball_url" {
   description = "Alluxio tarball download url. Url should be of https url or gs url"
   type        = string
   default =     "https://downloads.alluxio.io/protected/files/alluxio-enterprise-trial.tar.gz"
+}
+
+variable "create_test_users" {
+  description = "Create test users 'user1' and 'user2'"
+  type        = string
+  default =     "true"
 }
 
