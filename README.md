@@ -47,7 +47,67 @@ The default region is "us-east1". If you would like to change the region or zone
        default     = "us-east1"
      }
 
-### Step 4. Launch the Alluxio cluster on Google Cloud Platform
+### Step 4. Customize the Alluxio properties
+
+The Alluxio configuration files are located in the ./staging_files/conf directory. They are setup to use Google Cloud Storage as the root understore (UFS), but other understores can be mounted using the "nested mount" options in Alluxio.  
+
+If you would like to tune the JVM parameters for the Alluxio masters and workers, you can modify the alluxio-env.sh file like this:
+
+     # File: alluxio-env.sh
+     #
+     
+     # Alluxio Master Nodes:
+     export ALLUXIO_MASTER_JAVA_OPTS+=" -Xms64g -Xmx64g -XX:+UseConcMarkSweepGC -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseParNewGC -Xloggc:/opt/alluxio/logs/jvm_gc_master.log"
+     
+     # Alluxio Worker Nodes:
+     export ALLUXIO_WORKER_JAVA_OPTS+=" -Xms24g -Xmx24g -XX:MaxDirectMemorySize=12g -XX:+UseConcMarkSweepGC -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseParNewGC -Xloggc:/opt/alluxio/logs/jvm_gc_worker.log"
+     
+     # end of file
+
+If you would like to tweak the properties for the Alluxio masters, workers and users, you can modify the alluxio-site.properties file like this:
+
+     ### File: alluxio-site.properties
+     ###
+     
+     # General props
+     alluxio.web.login.enabled=true
+     alluxio.web.login.username=admin
+     alluxio.web.login.password=changeme123
+     alluxio.web.login.session.timeout=3h
+     
+     # Master props
+     alluxio.master.hostname=ALLUXIO_MASTER
+     alluxio.master.journal.type=EMBEDDED
+     alluxio.master.metastore=ROCKS
+     
+     # Client-side (northbound) kerberos authentication props
+     
+     # Root understore UFS props
+     alluxio.master.mount.table.root.ufs=gs://GS_UFS_BUCKET/alluxio_ufs/
+     # alluxio.master.mount.table.root.option.fs.gcs.credential.path=/path/to/<google_application_credentials>.json
+     alluxio.master.security.impersonation.root.users=*
+     alluxio.master.security.impersonation.root.groups=*
+     alluxio.master.security.impersonation.client.users=*
+     alluxio.master.security.impersonation.client.groups=*
+     
+     # Security props
+     alluxio.security.login.impersonation.username=_NONE_
+     alluxio.security.authorization.permission.enabled=true
+     
+     # Worker props
+     alluxio.worker.ramdisk.size=64GB
+     alluxio.worker.tieredstore.level0.alias=MEM
+     alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+     alluxio.worker.tieredstore.levels=1
+     
+     # User props
+     alluxio.user.rpc.retry.max.duration=10min
+     alluxio.user.file.writetype.default=CACHE_THROUGH
+     alluxio.user.file.readtype.default=CACHE
+     
+     ### end of file
+
+### Step 5. Launch the Alluxio cluster on Google Cloud Platform
 
 Use the terraform commands to initilize the templates and to launch the cluster:
 
@@ -65,14 +125,14 @@ When the cluster is up and running, you will see a message indicating that the c
      alluxio_cluster_master_public_ip = "104.196.61.72"
      alluxio_cluster_master_web_ui = "http://104.196.61.72:19999"
 
-### Step 5. Access the Alluxio Web UI
+### Step 6. Access the Alluxio Web UI
 
 Point your web browser to the "alluxio_cluster_master_web_ui" URL shown above. The default user id and password for the Alluxio Web UI are:
 
      User ID: admin
      Password: changeme123
 
-### Step 6. Use the Alluxio Command Line Interface (CLI)
+### Step 7. Use the Alluxio Command Line Interface (CLI)
 
 Use the gcloud command to ssh into the Alluxio master node:
 
@@ -80,6 +140,8 @@ Use the gcloud command to ssh into the Alluxio master node:
         --zone "us-west1-a" "my-cluster-alluxio-cluster-m"
 
 Become the test user to run user based alluxio commands:
+
+     sudo su -
 
      su - user1
 
