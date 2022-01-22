@@ -3,7 +3,7 @@ Run Alluxio Enterprise Trial Edition on Google Cloud Platform using terraform te
 
 # Introduction
 
-![Alt text](/images/.Meet_Alluxio_Overviewpng?raw=true "Meet Alluxio")
+![Alt text](/images/Meet_Alluxio_Overview.png?raw=true "Meet Alluxio")
 
 # USAGE
 
