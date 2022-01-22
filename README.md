@@ -47,6 +47,18 @@ The default region is "us-east1". If you would like to change the region or zone
        default     = "us-east1"
      }
 
+By default the templates launch 5 Alluxio worker nodes. If you would like to change the number of workers, modify the main.tf file and change the "instance_count" for "worker_config", like this:
+
+     master_config = {
+       instance_count = 1
+       machine_type   = "n1-highmem-16"
+     }
+     worker_config = {
+       num_local_ssds = 1
+       instance_count = 5
+       machine_type   = "n1-highmem-16"
+     }
+
 ### Step 4. Customize the Alluxio properties
 
 The Alluxio configuration files are located in the ./staging_files/conf directory. They are setup to use Google Cloud Storage as the root understore (UFS), but other understores can be mounted using the "nested mount" options in Alluxio.  
@@ -127,10 +139,18 @@ When the cluster is up and running, you will see a message indicating that the c
 
 ### Step 6. Access the Alluxio Web UI
 
-Point your web browser to the "alluxio_cluster_master_web_ui" URL shown above. The default user id and password for the Alluxio Web UI are:
+Point your web browser to the "alluxio_cluster_master_web_ui" URL shown above. 
+
+![Alt text](/images/Alluxio_WebUI_Login.png?raw=true "Alluxio Web UI Login")
+
+The default user id and password for the Alluxio Web UI are:
 
      User ID: admin
      Password: changeme123
+
+Once logged in, you will see the Alluxio cluster summary page.
+
+![Alt text](/images/Alluxio_WebUI_Summary.png?raw=true "Alluxio Web UI Summary")
 
 ### Step 7. Use the Alluxio Command Line Interface (CLI)
 
@@ -148,6 +168,8 @@ Become the test user to run user based alluxio commands:
 Use the alluxio command to view the status of the cluster:
 
      alluxio fsadmin report
+
+![Alt text](/images/Alluxio_fsadmin_report.png?raw=true "Alluxio fsadmin report")
 
 Use the alluxio command to test creating a directory and a new file in the GCS understore:
 
