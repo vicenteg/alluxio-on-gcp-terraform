@@ -30,6 +30,8 @@ locals {
     // the following config prevent the error `User: root is not allowed to impersonate <actual_user>`
     "core:hadoop.proxyuser.root.hosts"  = "*"
     "core:hadoop.proxyuser.root.groups" = "*"
+
+    "hdfs:dfs.webhdfs.enabled" = "true"
   }
   override_properties = length(var.override_properties) == 0 ? local.default_override_properties : var.override_properties
 }
