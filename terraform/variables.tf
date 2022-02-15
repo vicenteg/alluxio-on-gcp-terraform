@@ -54,6 +54,15 @@ variable "alluxio_tarball_url" {
 variable "create_test_users" {
   description = "Create test users 'user1' and 'user2'"
   type        = string
-  default =     "true"
+  default =     "false"
 }
 
+variable "vpc_self_link" {
+  description = "Link to the VPC to deploy resources in."
+  type = string
+}
+
+variable "subnet_self_link" {
+  description = "Link to the VPC subnetwork to deploy resources in."
+  type = string
+}

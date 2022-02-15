@@ -20,11 +20,11 @@ output "cluster_masters_hostnames" {
   description = "Hostnames of the masters of the dataproc cluster"
 }
 
-output "cluster_masters_public_ips" {
-  depends_on  = [google_dataproc_cluster.dataproc_cluster]
-  value       = length(data.google_compute_instance.cluster_masters) == 0 ? [] : data.google_compute_instance.cluster_masters[*].network_interface.0.access_config.0.nat_ip
-  description = "Public ips of the masters of the dataproc cluster"
-}
+#output "cluster_masters_public_ips" {
+#  depends_on  = [google_dataproc_cluster.dataproc_cluster]
+#  value       = length(data.google_compute_instance.cluster_masters) == 0 ? [] : data.google_compute_instance.cluster_masters[*].network_interface.0.access_config.0.nat_ip
+#  description = "Public ips of the masters of the dataproc cluster"
+#}
 
 output "cluster_masters_private_hostnames" {
   depends_on  = [google_dataproc_cluster.dataproc_cluster]

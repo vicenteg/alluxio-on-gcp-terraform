@@ -13,13 +13,13 @@ output "alluxio_cluster_master_hostname" {
   value       = module.alluxio_cluster.cluster_master_hostname
   description = "Hostname of Alluxio compute cluster master."
 }
-
-output "alluxio_cluster_master_public_ip" {
-  value       = module.alluxio_cluster.cluster_master_public_ip
-  description = "Public IP address of Alluxio cluster master node."
-}
-
-output "alluxio_cluster_master_web_ui" {
-  value       = "http://${module.alluxio_cluster.cluster_master_public_ip}:19999"
-  description = "Alluxio cluster master node Web UI address."
-}
+#
+#output "alluxio_cluster_master_public_ip" {
+#  value       = module.alluxio_cluster.cluster_master_public_ip
+#  description = "Public IP address of Alluxio cluster master node."
+#}
+#
+#output "alluxio_cluster_master_web_ui" {
+#  value       = "http://${module.alluxio_cluster.cluster_master_public_ip}:19999"
+#  description = "Alluxio cluster master node Web UI address."
+#}

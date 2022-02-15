@@ -36,6 +36,7 @@ locals {
 
 resource "google_dataproc_cluster" "dataproc_cluster" {
   provider = google-beta
+  project  = var.project_id
   name     = local.alluxio_cluster_name
   region   = data.google_client_config.current.region
   cluster_config {
@@ -55,6 +56,8 @@ resource "google_dataproc_cluster" "dataproc_cluster" {
       subnetwork = var.subnet_self_link
       zone       = data.google_client_config.current.zone
       metadata   = local.metadata
+      internal_ip_only = true
+      service_account_scopes = var.service_account_scopes
     }
     endpoint_config {
       enable_http_port_access = "true"

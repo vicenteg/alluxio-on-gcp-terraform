@@ -14,10 +14,10 @@ output "cluster_master_hostname" {
   description = "Master hostname of the dataproc cluster"
 }
 
-output "cluster_master_public_ip" {
-  value       = length(module.dataproc.cluster_masters_public_ips) == 0 ? "" : module.dataproc.cluster_masters_public_ips[0]
-  description = "Master public ip of the dataproc cluster"
-}
+#output "cluster_master_public_ip" {
+#  value       = length(module.dataproc.cluster_masters_public_ips) == 0 ? "" : module.dataproc.cluster_masters_public_ips[0]
+#  description = "Master public ip of the dataproc cluster"
+#}
 
 output "cluster_master_private_hostname" {
   value       = length(module.dataproc.cluster_masters_private_hostnames) == 0 ? "" : module.dataproc.cluster_masters_private_hostnames[0]

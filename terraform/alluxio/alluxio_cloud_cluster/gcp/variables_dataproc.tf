@@ -8,6 +8,9 @@
  *
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
+variable "project_id" {
+  type = string
+}
 variable "master_config" {
   description = "Master instance(s) configuration details"
   type = object({
@@ -29,7 +32,7 @@ variable "worker_config" {
     machine_type   = string
   })
   default = {
-    num_local_ssds = 1
+    num_local_ssds = 2
     instance_count = 2
     machine_type   = "n1-highmem-4"
   }
@@ -68,5 +71,5 @@ variable "staging_bucket" {
 variable "dataproc_image_version" {
   description = "The image version for dataproc cluster"
   type        = string
-  default     = "1.4.27-debian10"
+  default     = "2.0.29-debian10"
 }

@@ -8,6 +8,10 @@
  *
  * See the NOTICE file distributed with this work for information regarding copyright ownership.
  */
+variable "project_id" {
+  type = string
+}
+
 variable "master_config" {
   description = "Master instance(s) configuration details"
   type = object({
@@ -68,5 +72,11 @@ variable "staging_bucket" {
 variable "dataproc_image_version" {
   description = "The image version for dataproc cluster"
   type        = string
-  default     = "1.4.27-debian10"
+  default     = "2.0.29-debian10"
+}
+
+variable "service_account_scopes" {
+  description = "The IAM scopes the cluster should be configured with."
+  type        = list(string)
+  default     = [ "cloud-platform" ]
 }

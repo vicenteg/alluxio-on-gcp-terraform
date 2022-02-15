@@ -68,6 +68,7 @@ module "dataproc" {
   custom_name      = var.custom_name
 
   // dataproc
+  project_id             = var.project_id
   master_config          = var.master_config
   worker_config          = var.worker_config
   metadata               = local.finialized_metadata
@@ -80,20 +81,6 @@ module "dataproc" {
   // network connectivity
   vpc_self_link    = var.vpc_self_link
   subnet_self_link = var.subnet_self_link
-}
-
-// Open alluxio and presto web ui ports to the world
-// Presto is launched with 8060 http port in dataproc
-resource "google_compute_firewall" "alluxio_presto_firewall" {
-  provider = google-beta
-  name     = "${local.name_prefix}alluxio-presto-firewall"
-  network  = var.vpc_self_link
-
-  allow {
-    protocol = "tcp"
-    ports = [
-    "19999", "30077", "30000", "8060"]
-  }
 }
 
 resource "null_resource" "master_nums_check" {

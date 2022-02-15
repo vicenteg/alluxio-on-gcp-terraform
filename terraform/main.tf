@@ -51,15 +51,15 @@ locals {
 }
 
 // compute cluster resources
-module "vpc_compute" {
-  source = "./alluxio/vpc_with_internet/gcp"
-  providers = {
-    google-beta = google-beta.google_compute
-  }
-
-  use_default_name = var.use_default_name
-  custom_name      = local.compute_custom_name_prefix
-}
+#module "vpc_compute" {
+#  source = "./alluxio/vpc_with_internet/gcp"
+#  providers = {
+#    google-beta = google-beta.google_compute
+#  }
+#
+#  use_default_name = var.use_default_name
+#  custom_name      = local.compute_custom_name_prefix
+#}
 
 resource "google_storage_bucket_object" "alluxio_bootstrap" {
   provider = google-beta.google_compute
@@ -109,11 +109,14 @@ module "alluxio_cluster" {
     google-beta = google-beta.google_compute
   }
 
+  project_id     = var.project_name
   use_default_name = var.use_default_name
   custom_name      = local.compute_custom_name_prefix
 
-  vpc_self_link    = module.vpc_compute.vpc_self_link
-  subnet_self_link = module.vpc_compute.subnet_self_link
+#  vpc_self_link    = module.vpc_compute.vpc_self_link
+#  subnet_self_link = module.vpc_compute.subnet_self_link
+  vpc_self_link = var.vpc_self_link
+  subnet_self_link = var.subnet_self_link
   staging_bucket   = google_storage_bucket.shared_gs_bucket.name
 
   alluxio_tarball_url      = var.alluxio_tarball_url
@@ -124,7 +127,7 @@ module "alluxio_cluster" {
   on_prem_hdfs_site_uri = "${local.conf_gs_uri}/hdfs-site.xml"
 
   metadata = {
-    alluxio_gs_ufs_bucket   = "${google_storage_bucket.shared_gs_bucket.name}"
+    alluxio_gs_ufs_bucket   = google_storage_bucket.shared_gs_bucket.name
     alluxio_gs_conf_folder  = local.conf_gs_uri
   }
 
@@ -133,8 +136,8 @@ module "alluxio_cluster" {
     machine_type   = "n1-highmem-16"
   }
   worker_config = {
-    num_local_ssds = 1
-    instance_count = 5
+    num_local_ssds = 2
+    instance_count = 2
     machine_type   = "n1-highmem-16"
   }
 }

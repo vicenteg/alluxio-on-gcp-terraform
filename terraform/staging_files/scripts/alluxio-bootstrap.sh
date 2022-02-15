@@ -351,10 +351,7 @@ bootstrap_alluxio() {
   fi
 
   # add alluxio user
-  id -u alluxio &>/dev/null || sudo useradd alluxio
-  # add test users
-  id -u user1 &>/dev/null || sudo useradd --no-create-home --home-dir /tmp user1
-  id -u user2 &>/dev/null || sudo useradd --no-create-home --home-dir /tmp user2
+  id -u alluxio &>/dev/null || sudo useradd -m -d /home/alluxio alluxio
 
   # dataproc by default will install alluxio as user kafka
   # change the user and group to alluxio
@@ -374,9 +371,6 @@ bootstrap_alluxio() {
   # Create "alluxio_ufs" directory and some test user dirs in Google Cloud Storage bucket
   touch /tmp/ignore.tmp
   gsutil cp /tmp/ignore.tmp "gs://${gs_ufs_bucket}/alluxio_ufs"
-  #gsutil cp /tmp/ignore.tmp "gs://${gs_ufs_bucket}/alluxio_ufs/user/alluxio/"
-  #gsutil cp /tmp/ignore.tmp "gs://${gs_ufs_bucket}/alluxio_ufs/user/user1/"
-  #gsutil cp /tmp/ignore.tmp "gs://${gs_ufs_bucket}/alluxio_ufs/user/user2/"
   rm /tmp/ignore.tmp
 
 }
@@ -392,10 +386,8 @@ configure_alluxio() {
   sudo sed -i "s/ALLUXIO_MASTER/${MASTER_FQDN}/g" "${ALLUXIO_SITE_PROPERTIES}"
   sudo sed -i "s/GS_UFS_BUCKET/${gs_ufs_bucket}/g" "${ALLUXIO_SITE_PROPERTIES}"
 
-  # Copy the HDFS xml files
-  doas alluxio "gsutil cp ${gs_conf_folder}/core-site.xml $ALLUXIO_HOME/conf/core-site.xml"
-  doas alluxio "gsutil cp ${gs_conf_folder}/hdfs-site.xml $ALLUXIO_HOME/conf/hdfs-site.xml"
-
+  sudo -u alluxio ln -sf /etc/hadoop/conf/hdfs-site.xml /opt/alluxio/conf/hdfs-site.xml
+  sudo -u alluxio ln -sf /etc/hadoop/conf/core-site.xml /opt/alluxio/conf/core-site.xml
   # TODO: Copy the kerberos keytab files 
 
 }
@@ -525,10 +517,6 @@ main() {
     alluxio_chmod 777 /tmp
     alluxio_create_dir /user
     alluxio_chmod 777 /user
-    alluxio_create_dir /user/user1
-    alluxio_chown user1 /user/user1
-    alluxio_create_dir /user/user2
-    alluxio_chown user2 /user/user2
     doas alluxio "alluxio fs rm /motd"
   fi
 }
