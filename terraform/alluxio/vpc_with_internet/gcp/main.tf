@@ -80,3 +80,38 @@ resource "google_compute_firewall" "ssh_firewall" {
     "22"]
   }
 }
+
+// Allow ssh from anywhere
+resource "google_compute_firewall" "ssh_firewall" {
+  count    = var.enabled ? 1 : 0
+  provider = google-beta
+  name     = "${local.name_prefix}ssh-firewall"
+  network  = google_compute_network.vpc[0].self_link
+  allow {
+    protocol = "tcp"
+    ports = [
+    "22"]
+  }
+}
+
+resource "google_compute_router" "router" {
+  name    = "${local.name_prefix}router"
+  region  = google_compute_subnetwork.subnet[0].region
+  network = google_compute_network.vpc[0].self_link
+
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_nat" "nat" {
+  name                               = "${local.name_prefix}router-nat"
+  router                             = google_compute_router.router.name
+  region                             = google_compute_router.router.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  log_config {
+    enable = false
+    filter = "ERRORS_ONLY"
+  }
+}

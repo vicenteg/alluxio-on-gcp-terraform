@@ -23,7 +23,8 @@ readonly SPARK_HOME="${SPARK_HOME:-"/usr/lib/spark"}"
 readonly HIVE_HOME="${HIVE_HOME:-"/usr/lib/hive"}"
 readonly HADOOP_HOME="${HADOOP_HOME:-"/usr/lib/hadoop"}"
 readonly PRESTO_HOME="$(/usr/share/google/get_metadata_value attributes/alluxio_presto_home || echo "/usr/lib/presto")"
-readonly ALLUXIO_VERSION="enterprise-2.7.0-2.4"
+readonly ALLUXIO_VERSION="2.7.0"
+#readonly ALLUXIO_VERSION="enterprise-2.7.0-2.4"
 readonly ALLUXIO_DOWNLOAD_URL="https://downloads.alluxio.io/downloads/files/${ALLUXIO_VERSION}/alluxio-${ALLUXIO_VERSION}-bin.tar.gz"
 readonly ALLUXIO_HOME="/opt/alluxio"
 readonly ALLUXIO_SITE_PROPERTIES="${ALLUXIO_HOME}/conf/alluxio-site.properties"
@@ -104,7 +105,7 @@ download_file() {
     gsutil cp "${uri}" ./
   else
     # TODO Add metadata header tag to the wget for filtering out in download metrics.
-    wget -nv "${uri}"
+    wget "${uri}"
   fi
 }
 
@@ -351,7 +352,7 @@ bootstrap_alluxio() {
   fi
 
   # add alluxio user
-  id -u alluxio &>/dev/null || sudo useradd alluxio
+  id -u alluxio &>/dev/null || sudo useradd -m alluxio
   # add test users
   id -u user1 &>/dev/null || sudo useradd --no-create-home --home-dir /tmp user1
   id -u user2 &>/dev/null || sudo useradd --no-create-home --home-dir /tmp user2

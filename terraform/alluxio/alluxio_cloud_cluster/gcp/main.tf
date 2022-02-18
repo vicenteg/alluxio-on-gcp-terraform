@@ -80,6 +80,7 @@ module "dataproc" {
   // network connectivity
   vpc_self_link    = var.vpc_self_link
   subnet_self_link = var.subnet_self_link
+  internal_ip_only = var.internal_ip_only
 }
 
 // Open alluxio and presto web ui ports to the world

@@ -57,6 +57,7 @@ resource "google_dataproc_cluster" "dataproc_cluster" {
       subnetwork = var.subnet_self_link
       zone       = data.google_client_config.current.zone
       metadata   = local.metadata
+      internal_ip_only = var.internal_ip_only
     }
     endpoint_config {
       enable_http_port_access = "true"
