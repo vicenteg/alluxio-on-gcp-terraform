@@ -94,6 +94,7 @@ resource "google_compute_firewall" "ssh_firewall" {
   }
 }
 
+//internal IP only clusters, need it to download and install initialization actions
 resource "google_compute_router" "router" {
   name    = "${local.name_prefix}router"
   region  = google_compute_subnetwork.subnet[0].region
@@ -104,6 +105,7 @@ resource "google_compute_router" "router" {
   }
 }
 
+//internal IP only clusters, need it to download and install initialization actions
 resource "google_compute_router_nat" "nat" {
   name                               = "${local.name_prefix}router-nat"
   router                             = google_compute_router.router.name
