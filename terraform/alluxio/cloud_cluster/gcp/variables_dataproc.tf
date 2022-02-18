@@ -68,5 +68,5 @@ variable "staging_bucket" {
 variable "dataproc_image_version" {
   description = "The image version for dataproc cluster"
   type        = string
-  default     = "1.4.27-debian10"
+  default     = "2.0-debian10"
 }

@@ -18,3 +18,9 @@ variable "subnet_self_link" {
   description = "Self link of VPC subnet to create dataproc cluster in, output of vpc_with_internet module"
   type        = string
 }
+
+variable "internal_ip_only" {
+  description = "By default, clusters are not restricted to internal IP addresses, and will have ephemeral external IP addresses assigned to each instance. If set to true, all instances in the cluster will only have internal IP addresses"
+  type        = string
+  default     = true
+}

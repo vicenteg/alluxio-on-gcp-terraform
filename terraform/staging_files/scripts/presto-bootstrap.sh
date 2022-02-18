@@ -46,7 +46,7 @@ download_file() {
   elif [[ "${uri}" == gs://* ]]; then
     gsutil cp "${uri}" ./
   else
-    wget -nv "${uri}"
+    wget "${uri}"
   fi
 }
 
